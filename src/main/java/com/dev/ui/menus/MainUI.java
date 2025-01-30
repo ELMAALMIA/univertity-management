@@ -1,8 +1,6 @@
 package com.dev.ui.menus;
 
-import com.dev.dao.ExamenDAO;
-import com.dev.dao.LocalDAO;
-import com.dev.dao.ModuleDAO;
+
 import com.dev.enums.Role;
 import com.dev.enums.TypeSurveillant;
 import com.dev.models.Examen;
@@ -14,6 +12,7 @@ import com.dev.ui.departement.GestionDepartementsUI;
 import com.dev.ui.departement.GestionFilieresUI;
 import com.dev.ui.examen.AffectationListUI;
 
+import com.dev.ui.examen.ConvocationsUI;
 import com.dev.ui.examen.GestionExamenUI;
 import com.dev.ui.examen.GestionLocalUI;
 import com.dev.ui.surveillance.AffectationSurveillantDialog;
@@ -258,15 +257,15 @@ public class MainUI extends JFrame {
         JMenu menu = new JMenu("Rapports");
 
 
-//        JMenuItem convocations = new JMenuItem("Générer les convocations");
-//        convocations.addActionListener(e -> {
-//            // Utiliser le departementId de l'utilisateur courant
-//           ConvocationsUI.show(currentUser.getDepartementId());
-//        });
+//      JMenuItem convocations = new JMenuItem("Générer les convocations");
+//       convocations.addActionListener(e -> {
+//         // Utiliser le departementId de l'utilisateur courant
+//         ConvocationsUI.show(currentUser.getDepartementId());
+//      });
         JMenuItem stats = new JMenuItem("Statistiques");
         stats.addActionListener(e -> showStatistics());
 
-//        menu.add(convocations);
+//       menu.add(convocations);
         menu.add(stats);
 
         return menu;

@@ -1,5 +1,6 @@
 package com.dev.ui.examen;
 
+import com.dev.dao.DatabaseConnection;
 import com.dev.dao.ExamenDAO;
 import com.dev.dao.LocalDAO;
 import com.dev.dao.ModuleDAO;
@@ -21,6 +22,9 @@ import java.awt.Color;
 import java.awt.Desktop;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.time.format.DateTimeFormatter;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -480,6 +484,7 @@ public class GestionExamenUI extends JFrame {
                     document.add(new Paragraph("Aucun local assigné", normalFont));
                 }
 
+                addSurveillantSection(document, selected, boldFont, normalFont);
                 // Pied de page
                 Paragraph footer = new Paragraph("\nDocument généré le " +
                         LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
@@ -616,6 +621,91 @@ public class GestionExamenUI extends JFrame {
         dialog.setVisible(true);
     }
 
+    private void addSurveillantSection(Document document, Examen selected, Font boldFont, Font normalFont) {
+        String query = """
+        SELECT 
+            s.nom, 
+            s.prenom, 
+            s.type,
+            l.nom as local_nom,
+            l.capacite as local_capacite
+        FROM examens_surveillants es
+        JOIN surveillants s ON es.surveillant_id = s.id
+        JOIN locaux l ON es.local_id = l.id
+        WHERE es.examen_id = ?
+    """;
+
+        try {
+            Connection conn = DatabaseConnection.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setInt(1, selected.getId());
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                Paragraph survTitle = new Paragraph("\nSurveillants assignés", boldFont);
+                survTitle.setSpacingBefore(20);
+                survTitle.setSpacingAfter(10);
+                document.add(survTitle);
+
+                PdfPTable survTable = new PdfPTable(3);
+                survTable.setWidthPercentage(100);
+
+                // En-têtes
+                PdfPCell headerCell = new PdfPCell(new Phrase("Surveillant", boldFont));
+                headerCell.setBackgroundColor(new Color(240, 240, 240));
+                headerCell.setPadding(5);
+                survTable.addCell(headerCell);
+
+                headerCell = new PdfPCell(new Phrase("Type", boldFont));
+                headerCell.setBackgroundColor(new Color(240, 240, 240));
+                headerCell.setPadding(5);
+                survTable.addCell(headerCell);
+
+                headerCell = new PdfPCell(new Phrase("Local", boldFont));
+                headerCell.setBackgroundColor(new Color(240, 240, 240));
+                headerCell.setPadding(5);
+                survTable.addCell(headerCell);
+
+                do {
+                    // Colonne Surveillant
+                    PdfPCell cell = new PdfPCell(new Phrase(
+                            rs.getString("nom") + " " + rs.getString("prenom"),
+                            normalFont
+                    ));
+                    cell.setPadding(5);
+                    survTable.addCell(cell);
+
+                    // Colonne Type
+                    cell = new PdfPCell(new Phrase(rs.getString("type"), normalFont));
+                    cell.setPadding(5);
+                    survTable.addCell(cell);
+
+                    // Colonne Local
+                    cell = new PdfPCell(new Phrase(
+                            rs.getString("local_nom") + " (" + rs.getInt("local_capacite") + " places)",
+                            normalFont
+                    ));
+                    cell.setPadding(5);
+                    survTable.addCell(cell);
+                } while (rs.next());
+
+                document.add(survTable);
+            } else {
+                Paragraph noSurv = new Paragraph("Aucun surveillant assigné", normalFont);
+                noSurv.setSpacingBefore(10);
+                document.add(noSurv);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            try {
+                Paragraph error = new Paragraph("Erreur lors de la récupération des surveillants", normalFont);
+                error.setSpacingBefore(10);
+                document.add(error);
+            } catch (DocumentException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
     // Fonction pour créer le panel de recherche
     private JPanel createSearchPanel() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
