@@ -9,18 +9,37 @@ public class Utilisateur {
     private Role role;
     private String email;
     private boolean active;
+    private int departementId;
 
-    public Utilisateur(String username, String password, Role role, String email) {
+    public Utilisateur(String username, String password, Role role, String email ) {
         this.username = username;
         this.password = password;
         this.role = role;
         this.email = email;
         this.active = true;
+        this.departementId = departementId;
     }
+    public Utilisateur(String username, String password, Role role, String email, int departementId ) {
+        this.username = username;
+        this.password = password;
+        this.role = role;
+        this.email = email;
+        this.active = true;
+        this.departementId = departementId;
+    }
+
 
     // Getters et Setters
     public Integer getId() {
         return id;
+    }
+
+    public void setDepartementId(int departementId) {
+        this.departementId = departementId;
+    }
+
+    public int getDepartementId() {
+        return departementId;
     }
 
     public void setId(Integer id) {

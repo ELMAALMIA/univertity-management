@@ -1,41 +1,88 @@
 package com.dev.models;
 
-import java.util.Date;
-import java.util.ArrayList;
-import java.util.List;
+import com.dev.enums.SessionType;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 public class Examen {
-    private Module module;
-    private Date date;
-    private String heureDebut;
-    private String heureFin;
-    private List<Local> locaux;
-    private List<Surveillant> surveillants;
+    private int id;
+    private int moduleId;
+    private LocalDate dateExamen;
+    private LocalTime heureDebut;
+    private LocalTime heureFin;
 
-    public Examen(Module module, Date date, String heureDebut, String heureFin) {
-        this.module = module;
-        this.date = date;
+    private SessionType sessionType;
+
+    // Constructeurs, getters et setters
+    public Examen(int id, int moduleId, LocalDate dateExamen, LocalTime heureDebut, LocalTime heureFin) {
+        this.id = id;
+        this.moduleId = moduleId;
+        this.dateExamen = dateExamen;
         this.heureDebut = heureDebut;
         this.heureFin = heureFin;
-        this.locaux = new ArrayList<>();
-        this.surveillants = new ArrayList<>();
     }
 
-    // Ajouter un local
-    public void ajouterLocal(Local local) {
-        locaux.add(local);
+    public Examen(int moduleId, LocalDate dateExamen, LocalTime heureDebut, LocalTime heureFin) {
+        this.moduleId = moduleId;
+        this.dateExamen = dateExamen;
+        this.heureDebut = heureDebut;
+        this.heureFin = heureFin;
     }
 
-    // Ajouter un surveillant
-    public void ajouterSurveillant(Surveillant surveillant) {
-        surveillants.add(surveillant);
+
+
+    public Examen(int id,Integer moduleId, LocalDate dateExamen, LocalTime heureDebut, LocalTime heureFin, SessionType sessionType) {
+       this.id=id;
+        this.moduleId = moduleId;
+        this.dateExamen = dateExamen;
+        this.heureDebut = heureDebut;
+        this.heureFin = heureFin;
+        this.sessionType = sessionType;
     }
 
-    // Getters
-    public Module getModule() { return module; }
-    public Date getDate() { return date; }
-    public String getHeureDebut() { return heureDebut; }
-    public String getHeureFin() { return heureFin; }
-    public List<Local> getLocaux() { return locaux; }
-    public List<Surveillant> getSurveillants() { return surveillants; }
+    public Examen(Integer moduleId, LocalDate dateExamen, LocalTime heureDebut, LocalTime heureFin, SessionType sessionType) {
+
+        this.moduleId = moduleId;
+        this.dateExamen = dateExamen;
+        this.heureDebut = heureDebut;
+        this.heureFin = heureFin;
+        this.sessionType = sessionType;
+    }
+
+
+
+
+    // Getters et setters
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+    public int getModuleId() { return moduleId; }
+    public void setModuleId(int moduleId) { this.moduleId = moduleId; }
+    public LocalDate getDateExamen() { return dateExamen; }
+    public void setDateExamen(LocalDate dateExamen) { this.dateExamen = dateExamen; }
+    public LocalTime getHeureDebut() { return heureDebut; }
+    public void setHeureDebut(LocalTime heureDebut) { this.heureDebut = heureDebut; }
+    public LocalTime getHeureFin() { return heureFin; }
+    public void setHeureFin(LocalTime heureFin) { this.heureFin = heureFin; }
+
+
+    public SessionType getSessionType() {
+        return sessionType;
+    }
+
+    public void setSessionType(SessionType sessionType) {
+        this.sessionType = sessionType;
+    }
+
+    @Override
+    public String toString() {
+        return "Examen{" +
+                "id=" + id +
+                ", moduleId=" + moduleId +
+                ", dateExamen=" + dateExamen +
+                ", heureDebut=" + heureDebut +
+                ", heureFin=" + heureFin +
+                ", sessionType=" + sessionType +
+                '}';
+    }
 }

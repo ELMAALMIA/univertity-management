@@ -1,4 +1,4 @@
-package com.dev.ui;
+package com.dev.ui.menus;
 
 import com.formdev.flatlaf.FlatLightLaf;
 import javax.swing.*;

@@ -1,4 +1,4 @@
-package com.dev.util;
+package com.dev.utils;
 
 
 import javax.swing.*;
@@ -7,8 +7,6 @@ import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
 
 public class SearchPanel extends JPanel {
     private JTextField searchField;

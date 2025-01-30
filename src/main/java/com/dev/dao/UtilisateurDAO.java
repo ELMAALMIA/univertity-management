@@ -62,5 +62,39 @@ public class UtilisateurDAO implements DAO<Utilisateur> {
 
     }
 
+    public boolean verifierMotDePasse(String username, String motDePasse) {
+        try {
+            PreparedStatement stmt = connection.prepareStatement(
+                    "SELECT * FROM utilisateurs WHERE username = ? AND password = ?"
+            );
+            stmt.setString(1, username);
+            stmt.setString(2, motDePasse);  // En production, utilisez le hachage
+
+            ResultSet rs = stmt.executeQuery();
+            return rs.next();
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lors de la vérification du mot de passe", e);
+        }
+    }
+
+    // Méthode pour changer le mot de passe
+    public void changerMotDePasse(String username, String nouveauMotDePasse) {
+        try {
+            PreparedStatement stmt = connection.prepareStatement(
+                    "UPDATE utilisateurs SET password = ? WHERE username = ?"
+            );
+            stmt.setString(1, nouveauMotDePasse);  // En production, utilisez le hachage
+            stmt.setString(2, username);
+
+            int lignesModifiees = stmt.executeUpdate();
+
+            if (lignesModifiees == 0) {
+                throw new RuntimeException("Utilisateur non trouvé");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lors du changement de mot de passe", e);
+        }
+    }
+
 
 }

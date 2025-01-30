@@ -60,7 +60,8 @@ public class AuthenticationService {
                     rs.getString("username"),
                     "", // On ne stocke pas le mot de passe en mémoire
                     Role.valueOf(rs.getString("role")),
-                    rs.getString("email")
+                    rs.getString("email"),
+                     rs.getInt("departement_id")
             );
             user.setId(rs.getInt("id"));
             return user;

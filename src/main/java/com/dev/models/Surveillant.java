@@ -1,28 +1,73 @@
 package com.dev.models;
 
+import com.dev.enums.TypeSurveillant;
 
 public class Surveillant {
-    private  int id;
+    private int id;
     private String nom;
     private String prenom;
-    private String type; // Enseignant ou Attaché administratif
-    private Departement departement;
+    private TypeSurveillant type; // Utilisation de l'énumération
+    private int departementId; // Identifiant du département
 
-    public Surveillant(String nom, String prenom, String type, String departement) {
+    // Constructeur sans ID (utilisé pour la création)
+    public Surveillant(String nom, String prenom, TypeSurveillant type, int departementId) {
         this.nom = nom;
         this.prenom = prenom;
         this.type = type;
-        this.departement = new Departement(departement);
+        this.departementId = departementId;
     }
 
-    // Getters
-    public String getNom() { return nom; }
-    public String getPrenom() { return prenom; }
-    public String getType() { return type; }
-    public Departement getDepartement() { return departement; }
+    // Constructeur complet (avec ID, utilisé pour les objets existants)
+    public Surveillant(int id, String nom, String prenom, TypeSurveillant type, int departementId) {
+        this.id = id;
+        this.nom = nom;
+        this.prenom = prenom;
+        this.type = type;
+        this.departementId = departementId;
+    }
 
-    public void setId(int id) { this.id = id; }
-    public int getId() { return id; }
+    // Getters et setters
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getNom() {
+        return nom;
+    }
+
+    public void setNom(String nom) {
+        this.nom = nom;
+    }
+
+    public String getPrenom() {
+        return prenom;
+    }
+
+    public void setPrenom(String prenom) {
+        this.prenom = prenom;
+    }
+
+    public TypeSurveillant getType() {
+        return type;
+    }
+
+    public void setType(TypeSurveillant type) {
+        this.type = type;
+    }
+
+    public int getDepartementId() {
+        return departementId;
+    }
+
+    public void setDepartementId(int departementId) {
+        this.departementId = departementId;
+    }
+
+    // Représentation textuelle de l'objet
     @Override
     public String toString() {
         return nom + " " + prenom + " (" + type + ")";

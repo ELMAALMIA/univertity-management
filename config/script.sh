@@ -11,3 +11,7 @@ USE gestion_examens;
 
 # Vous pouvez maintenant exécuter des commandes SQL
 SHOW TABLES;
+
+
+
+user-p= 123456789

@@ -1,4 +1,4 @@
-package com.dev.ui;
+package com.dev.ui.menus;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;

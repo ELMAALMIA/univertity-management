@@ -1,8 +1,7 @@
-package com.dev.util;
+package com.dev.utils;
 
 
 
-import com.dev.models.Examen;
 import com.dev.models.Surveillant;
 
 import java.util.ArrayList;
@@ -40,36 +39,36 @@ public class ValidationService {
             result.addError("Le prénom est obligatoire");
         }
 
-        if (surveillant.getDepartement() == null) {
+        if (surveillant.getDepartementId()==0) {
             result.addError("Le département est obligatoire");
         }
 
         return result;
     }
 
-    public static ValidationResult validateExamen(Examen examen) {
-        ValidationResult result = new ValidationResult();
-
-        if (examen.getModule() == null) {
-            result.addError("Le module est obligatoire");
-        }
-
-        if (examen.getDate() == null) {
-            result.addError("La date est obligatoire");
-        }
-
-        if (examen.getHeureDebut() == null || examen.getHeureDebut().trim().isEmpty()) {
-            result.addError("L'heure de début est obligatoire");
-        }
-
-        if (examen.getHeureFin() == null || examen.getHeureFin().trim().isEmpty()) {
-            result.addError("L'heure de fin est obligatoire");
-        }
-
-        if (examen.getLocaux().isEmpty()) {
-            result.addError("Au moins un local doit être assigné");
-        }
-
-        return result;
-    }
+//    public static ValidationResult validateExamen(Examen examen) {
+//        ValidationResult result = new ValidationResult();
+//
+//        if (examen.getModule() == null) {
+//            result.addError("Le module est obligatoire");
+//        }
+//
+//        if (examen.getDate() == null) {
+//            result.addError("La date est obligatoire");
+//        }
+//
+//        if (examen.getHeureDebut() == null || examen.getHeureDebut().trim().isEmpty()) {
+//            result.addError("L'heure de début est obligatoire");
+//        }
+//
+//        if (examen.getHeureFin() == null || examen.getHeureFin().trim().isEmpty()) {
+//            result.addError("L'heure de fin est obligatoire");
+//        }
+//
+//        if (examen.getLocaux().isEmpty()) {
+//            result.addError("Au moins un local doit être assigné");
+//        }
+//
+//        return result;
+//    }
 }

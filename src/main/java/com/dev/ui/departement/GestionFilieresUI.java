@@ -1,8 +1,9 @@
-package com.dev.ui;
+package com.dev.ui.departement;
 
 import com.dev.dao.FiliereDAO;
 import com.dev.models.Departement;
 import com.dev.models.Filiere;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
