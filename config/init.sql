@@ -186,5 +186,9 @@ UPDATE utilisateurs SET departement_id = 2 WHERE username = 'chef_math';
 --                                                                                ('surveillant2', '1213456789', 'SURVEILLANT', 'surveillant2@app.com', 2);
 
 
+update  utilisateurs set password =123456789
+
 ALTER TABLE examens
     ADD COLUMN session_type ENUM('NORMALE', 'RATTRAPAGE') NOT NULL DEFAULT 'NORMALE';
+INSERT INTO departements (nom) VALUES ('Administratif');
+UPDATE utilisateurs SET departement_id = (SELECT id FROM departements WHERE nom = 'Administratif') WHERE role = 'ADMIN';

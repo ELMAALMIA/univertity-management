@@ -13,6 +13,7 @@ import com.dev.ui.LoginUI;
 import com.dev.ui.departement.GestionDepartementsUI;
 import com.dev.ui.departement.GestionFilieresUI;
 import com.dev.ui.examen.AffectationListUI;
+
 import com.dev.ui.examen.GestionExamenUI;
 import com.dev.ui.examen.GestionLocalUI;
 import com.dev.ui.surveillance.AffectationSurveillantDialog;
@@ -25,10 +26,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.FileNotFoundException;
 // iText PDF
-import com.itextpdf.text.*;
-import com.itextpdf.text.Font;
-import com.itextpdf.text.pdf.PdfPTable;
-import com.itextpdf.text.pdf.PdfWriter;
+
 import java.io.FileOutputStream;
 import java.util.List;
 import java.util.Optional;
@@ -41,6 +39,7 @@ public class MainUI extends JFrame {
     public MainUI(Utilisateur user) {
         this.currentUser = user;
 
+        System.out.println(user);
         // Configuration de la fenêtre principale
         setTitle("Gestion des Surveillances d'Examens");
         setSize(1024, 768);
@@ -109,6 +108,10 @@ public class MainUI extends JFrame {
     }
 
     private JMenu createDepartementMenu() {
+
+
+
+
         JMenu menu = new JMenu("Département");
 
         JMenuItem gestionDept = new JMenuItem("Gestion des Départements");
@@ -128,6 +131,7 @@ public class MainUI extends JFrame {
         menu.add(gestionFil);
 
         return menu;
+
     }
     private JMenu createSurveillanceMenu() {
         JMenu menu = new JMenu("Gestion des surveillants");
@@ -253,13 +257,16 @@ public class MainUI extends JFrame {
     private JMenu createReportsMenu() {
         JMenu menu = new JMenu("Rapports");
 
-        JMenuItem convocations = new JMenuItem("Générer les convocations");
-        convocations.addActionListener(e -> generateConvocations());
 
+//        JMenuItem convocations = new JMenuItem("Générer les convocations");
+//        convocations.addActionListener(e -> {
+//            // Utiliser le departementId de l'utilisateur courant
+//           ConvocationsUI.show(currentUser.getDepartementId());
+//        });
         JMenuItem stats = new JMenuItem("Statistiques");
         stats.addActionListener(e -> showStatistics());
 
-        menu.add(convocations);
+//        menu.add(convocations);
         menu.add(stats);
 
         return menu;
@@ -329,78 +336,7 @@ public class MainUI extends JFrame {
     private void showAddExamen() {
         // TODO: Implémenter l'ajout d'examen
     }
-    private void generateConvocations() {
-        // Récupérer l'ID du département de l'utilisateur actuel
-        int departementId = currentUser.getDepartementId();
 
-        // Créer une instance de ExamenDAO
-        ExamenDAO examenDAO = new ExamenDAO();
-
-        // Récupérer la liste des examens du département
-        List<Examen> examens = examenDAO.findByDepartementId(departementId);
-
-        // Créer une instance de LocalDAO
-        LocalDAO localDAO = new LocalDAO();
-
-        // Créer un objet Document pour générer le PDF
-        Document document = new Document();
-
-        try {
-            // Créer un fichier PDF pour enregistrer les convocations
-            PdfWriter.getInstance(document, new FileOutputStream("convocations.pdf"));
-            document.open();
-
-            // Parcourir chaque examen
-            for (Examen examen : examens) {
-                // Récupérer le local affecté à cet examen
-                Optional<Local> optionalLocal = localDAO.findByExamenAndSurveillant(examen.getId(), currentUser.getId());
-
-                if (optionalLocal.isPresent()) {
-                    Local local = optionalLocal.get();
-                    ModuleDAO moduleDAO = new ModuleDAO();
-
-                    // Ajouter un titre pour l'examen
-                    Paragraph titre = new Paragraph("Convocation pour l'examen : " +  moduleDAO.findById(examen.getModuleId()).get().getNom());
-                    titre.setAlignment(Element.ALIGN_CENTER);
-                    titre.setSpacingAfter(10);
-                    document.add(titre);
-
-                    // Créer un tableau pour afficher les informations de convocation
-                    PdfPTable table = new PdfPTable(2);
-                    table.setWidthPercentage(100);
-                    table.setSpacingBefore(10);
-                    table.setSpacingAfter(10);
-
-                    // Ajouter les informations de convocation au tableau
-                    table.addCell("Date");
-                    table.addCell(examen.getDateExamen().toString());
-                    table.addCell("Heure de début");
-                    table.addCell(examen.getHeureDebut().toString());
-                    table.addCell("Heure de fin");
-                    table.addCell(examen.getHeureFin().toString());
-                    table.addCell("Local");
-                    table.addCell(local.getNom());
-
-                    // Ajouter le tableau au document
-                    document.add(table);
-
-                    // Ajouter un saut de page après chaque examen
-                    document.newPage();
-                }
-            }
-
-            document.close();
-
-            // Afficher un message de confirmation
-            JOptionPane.showMessageDialog(this, "Les convocations ont été générées avec succès.", "Confirmation", JOptionPane.INFORMATION_MESSAGE);
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Une erreur s'est produite lors de la génération des convocations.", "Erreur", JOptionPane.ERROR_MESSAGE);
-        } catch (com.itextpdf.text.DocumentException e) {
-            throw new RuntimeException(e);
-        }
-    }
     private void showStatistics() {
         // Créer le panneau de statistiques
         StatistiquesUI statistiquesPanel = new StatistiquesUI(currentUser.getDepartementId());
