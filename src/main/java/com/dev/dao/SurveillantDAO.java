@@ -71,7 +71,7 @@ public class SurveillantDAO implements DAO<Surveillant> {
             );
             stmt.setString(1, surveillant.getNom());
             stmt.setString(2, surveillant.getPrenom());
-            stmt.setString(3, surveillant.getType().toString()); // Type en String
+            stmt.setString(3, surveillant.getType().getDatabaseValue()); // Use enum name for database
             stmt.setInt(4, surveillant.getDepartementId());
 
             stmt.executeUpdate();
