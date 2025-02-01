@@ -182,6 +182,8 @@ public class AffectationSurveillantDialog extends JDialog {
         int surveillantId = (int) surveillantTable.getValueAt(selectedSurveillantRow, 0);
         String moduleName = (String) examTable.getValueAt(selectedExamRow, 1);
 
+        System.out.println("examen  id "+examenId);
+        System.out.println("surveillant id "+surveillantId);
         try {
             // Créer et sauvegarder l'affectation
             AffectationSurveillant affectation = new AffectationSurveillant(

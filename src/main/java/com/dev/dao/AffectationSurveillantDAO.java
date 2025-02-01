@@ -1,67 +1,99 @@
 package com.dev.dao;
 
+
 import com.dev.models.AffectationSurveillant;
 
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
-public class AffectationSurveillantDAO {
-    // Liste simulant une base de données
-    private List<AffectationSurveillant> affectations = new ArrayList<>();
+public class AffectationSurveillantDAO implements DAO<AffectationSurveillant> {
 
-    // Récupérer toutes les affectations
+    private final Connection connection;
+
+    public AffectationSurveillantDAO() {
+        this.connection = DatabaseConnection.getConnection();
+    }
+
+    // ✅ Trouver une affectation par ID d'examen
+    @Override
+    public Optional<com.dev.models.AffectationSurveillant> findById(Integer examenId) {
+        String sql = "SELECT * FROM examens_surveillants WHERE examen_id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, examenId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                AffectationSurveillant affectation = new AffectationSurveillant(
+                        rs.getInt("examen_id"),
+                        rs.getInt("surveillant_id"),
+                        rs.getInt("local_id")
+                );
+                return Optional.of(affectation);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return Optional.empty();
+    }
+
+    // ✅ Récupérer toutes les affectations
+    @Override
     public List<AffectationSurveillant> findAll() {
-        return new ArrayList<>(affectations);
+        List<AffectationSurveillant> affectations = new ArrayList<>();
+        String sql = "SELECT * FROM examens_surveillants";
+        try (Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                affectations.add(new AffectationSurveillant(
+                        rs.getInt("examen_id"),
+                        rs.getInt("surveillant_id"),
+                        rs.getInt("local_id")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return affectations;
     }
 
-    // Trouver les affectations pour un surveillant spécifique
-    public List<AffectationSurveillant> findBySurveillantId(int surveillantId) {
-        return affectations.stream()
-                .filter(a -> a.getSurveillantId() == surveillantId)
-                .collect(Collectors.toList());
-    }
-
-    // Trouver les affectations pour un examen spécifique
-    public List<AffectationSurveillant> findByExamenId(int examenId) {
-        return affectations.stream()
-                .filter(a -> a.getExamenId() == examenId)
-                .collect(Collectors.toList());
-    }
-
-    // Sauvegarder une nouvelle affectation
+    // ✅ Ajouter une nouvelle affectation
+    @Override
     public AffectationSurveillant save(AffectationSurveillant affectation) {
-        // Vérifier si l'affectation existe déjà
-        boolean exists = affectations.stream()
-                .anyMatch(a -> a.getExamenId() == affectation.getExamenId() &&
-                        a.getSurveillantId() == affectation.getSurveillantId());
-
-        if (exists) {
-            throw new RuntimeException("Ce surveillant est déjà affecté à cet examen.");
+        String sql = "INSERT INTO examens_surveillants (examen_id, surveillant_id) VALUES (?, ?)";
+        try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            stmt.setInt(1, affectation.getExamenId());
+            stmt.setInt(2, affectation.getSurveillantId());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-
-        // Générer un nouvel ID
-        if (affectation.getId() == 0) {
-            affectation.setId(affectations.size() + 1);
-        }
-
-        affectations.add(affectation);
         return affectation;
     }
 
-    // Mettre à jour une affectation existante
+    // ✅ Mettre à jour une affectation (exemple : changer le surveillant/local)
+    @Override
     public void update(AffectationSurveillant affectation) {
-        for (int i = 0; i < affectations.size(); i++) {
-            if (affectations.get(i).getId() == affectation.getId()) {
-                affectations.set(i, affectation);
-                return;
-            }
+        String sql = "UPDATE examens_surveillants SET surveillant_id = ?, local_id = ? WHERE examen_id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, affectation.getSurveillantId());
+            stmt.setInt(2, 0);
+            stmt.setInt(3, affectation.getExamenId());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        throw new RuntimeException("Affectation non trouvée");
     }
 
-    // Supprimer une affectation
-    public void delete(int id) {
-        affectations.removeIf(a -> a.getId() == id);
+    // ✅ Supprimer toutes les affectations d’un examen
+    @Override
+    public void delete(Integer examenId) {
+        String sql = "DELETE FROM examens_surveillants WHERE examen_id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, examenId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

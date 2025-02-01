@@ -114,7 +114,8 @@ public class PlanningsurveillanceUI extends JFrame {
 
         // Récupérer les examens du surveillant sélectionné
         List<Examen> examens = affectationDAO.findBySurveillantId(surveillantSelectionne.getId());
-
+        System.out.println(surveillantSelectionne.getId());
+        System.out.println(examens);
         // Remplir le planning
         for (Examen examen : examens) {
             // Récupérer les informations du module

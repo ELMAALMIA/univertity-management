@@ -187,6 +187,7 @@ public class GestionSurveillanceUI extends JFrame {
         saveButton.addActionListener(e -> {
             if (validateFields(nomField.getText(), prenomField.getText())) {
                 Surveillant surveillant = new Surveillant(
+
                         nomField.getText().trim(),
                         prenomField.getText().trim(),
                         (TypeSurveillant) typeCombo.getSelectedItem(),
