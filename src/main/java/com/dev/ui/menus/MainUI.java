@@ -175,6 +175,7 @@ public class MainUI extends JFrame {
                 GestionSurveillanceUI gestionSurveillanceUI = new GestionSurveillanceUI(
                         departementId,
                         TypeSurveillant.ENSEIGNANT
+                        , currentUser.getRole()
                 );
                 gestionSurveillanceUI.setVisible(true);
             });
@@ -187,6 +188,7 @@ public class MainUI extends JFrame {
                     GestionSurveillanceUI gestionSurveillanceUI = new GestionSurveillanceUI(
                             departementId,
                             TypeSurveillant.ADMINISTRATIF
+                            , currentUser.getRole()
                     );
                     gestionSurveillanceUI.setVisible(true);
                 });
@@ -202,7 +204,7 @@ public class MainUI extends JFrame {
 
             JMenuItem affectationEnseignantsItem = new JMenuItem("Affectation Enseignants");
             affectationEnseignantsItem.addActionListener(e ->
-                    AffectationSurveillantDialog.show(this, departementId, TypeSurveillant.ENSEIGNANT)
+                    AffectationSurveillantDialog.show(this, departementId, TypeSurveillant.ENSEIGNANT, currentUser.getRole())
             );
             affectationMenu.add(affectationEnseignantsItem);
 
@@ -210,7 +212,7 @@ public class MainUI extends JFrame {
             if (currentUser.getRole() == Role.ADMIN) {
                 JMenuItem affectationAdministratifsItem = new JMenuItem("Affectation Personnel Administratif");
                 affectationAdministratifsItem.addActionListener(e ->
-                        AffectationSurveillantDialog.show(this, departementId, TypeSurveillant.ADMINISTRATIF)
+                        AffectationSurveillantDialog.show(this, departementId, TypeSurveillant.ADMINISTRATIF, currentUser.getRole())
                 );
                 affectationMenu.add(affectationAdministratifsItem);
             }
@@ -230,7 +232,7 @@ public class MainUI extends JFrame {
 
             System.out.println("departementId: " + departementId);
             System.out.println("currentUser.getRole(): " + currentUser);
-            GestionExamenUI gestionExamenUi = new GestionExamenUI(departementId);
+            GestionExamenUI gestionExamenUi = new GestionExamenUI(currentUser.getRole(),departementId);
             gestionExamenUi.setVisible(true); // Afficher la fenêtre de gestion des examens
         });
         menu.add(gestionExamen);
@@ -328,7 +330,7 @@ public class MainUI extends JFrame {
     }
     private void showAffectationSurveillant(int departementId, TypeSurveillant userType) {
 
-            AffectationSurveillantDialog.show(this, departementId, userType);
+            AffectationSurveillantDialog.show(this, departementId, userType, currentUser.getRole());
 
     }
 
@@ -338,7 +340,7 @@ public class MainUI extends JFrame {
 
     private void showStatistics() {
         // Créer le panneau de statistiques
-        StatistiquesUI statistiquesPanel = new StatistiquesUI(currentUser.getDepartementId());
+        StatistiquesUI statistiquesPanel = new StatistiquesUI(currentUser.getRole(),currentUser.getDepartementId());
 
         // Mettre à jour le contenu principal
         setContent(statistiquesPanel);

@@ -4,6 +4,7 @@ import com.dev.dao.ExamenDAO;
 import com.dev.dao.SurveillantDAO;
 import com.dev.dao.AffectationSurveillantDAO;
 import com.dev.dao.ModuleDAO;
+import com.dev.enums.Role;
 import com.dev.models.Examen;
 import com.dev.models.Surveillant;
 import com.dev.models.Module;
@@ -27,12 +28,14 @@ public class AffectationSurveillantDialog extends JDialog {
     private final ModuleDAO moduleDAO;
     private final int departementId;
     private final TypeSurveillant userType;
+    private final Role role;
 
-    public AffectationSurveillantDialog(JFrame parent, int departementId, TypeSurveillant userType) {
+    public AffectationSurveillantDialog(JFrame parent, int departementId, TypeSurveillant userType, Role role) {
         super(parent, "Affectation des Surveillants", true);
 
         this.departementId = departementId;
         this.userType = userType;
+        this.role = role;
 
         // Initialisation des DAOs
         this.examenDAO = new ExamenDAO();
@@ -45,7 +48,7 @@ public class AffectationSurveillantDialog extends JDialog {
         setLayout(new BorderLayout(10, 10));
         setLocationRelativeTo(parent);
 
-        // Créer les modèles de tableau avant d'initialiser les tables
+        // Créer les modèles de tableau
         DefaultTableModel examModel = new DefaultTableModel(
                 new String[]{"ID", "Module", "Date", "Heure", "Session"}, 0) {
             @Override
@@ -62,14 +65,14 @@ public class AffectationSurveillantDialog extends JDialog {
             }
         };
 
-        // Initialiser les tables avec les modèles
+        // Initialiser les tables
         examTable = new JTable(examModel);
         examTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         surveillantTable = new JTable(surveillantModel);
         surveillantTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-        // Création des panneaux pour les examens et surveillants
+        // Création des panneaux
         JPanel examPanel = createExamPanel();
         JPanel surveillantPanel = createSurveillantPanel();
 
@@ -91,20 +94,16 @@ public class AffectationSurveillantDialog extends JDialog {
     private JPanel createExamPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createTitledBorder("Examens"));
-
         JScrollPane scrollPane = new JScrollPane(examTable);
         panel.add(scrollPane, BorderLayout.CENTER);
-
         return panel;
     }
 
     private JPanel createSurveillantPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createTitledBorder("Surveillants"));
-
         JScrollPane scrollPane = new JScrollPane(surveillantTable);
         panel.add(scrollPane, BorderLayout.CENTER);
-
         return panel;
     }
 
@@ -116,12 +115,17 @@ public class AffectationSurveillantDialog extends JDialog {
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         DateTimeFormatter heureFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
-        // Récupérer les examens (potentiellement filtrés)
-        List<Examen> examens = examenDAO.findByDepartementId(departementId);
+        // Récupérer les examens
+        List<Examen> examens = examenDAO.findByDepartementId(role, departementId);
         for (Examen examen : examens) {
             // Récupérer le nom du module
             Module module = moduleDAO.findById(examen.getModuleId()).orElse(null);
             String moduleName = module != null ? module.getNom() : "N/A";
+
+            String sessionTypeDisplay = "N/A";
+            if (examen.getSessionType() != null) {
+                sessionTypeDisplay = examen.getSessionType().getDisplayName();
+            }
 
             model.addRow(new Object[]{
                     examen.getId(),
@@ -129,7 +133,7 @@ public class AffectationSurveillantDialog extends JDialog {
                     examen.getDateExamen().format(dateFormatter),
                     examen.getHeureDebut().format(heureFormatter) + " - " +
                             examen.getHeureFin().format(heureFormatter),
-                    examen.getSessionType().getDisplayName()
+                    sessionTypeDisplay
             });
         }
     }
@@ -179,30 +183,14 @@ public class AffectationSurveillantDialog extends JDialog {
         String moduleName = (String) examTable.getValueAt(selectedExamRow, 1);
 
         try {
-            // Vérifier la disponibilité du surveillant
-            boolean estDisponible = verifierDisponibiliteSurveillant(surveillantId, examenId);
-
-            if (!estDisponible) {
-                int confirm = JOptionPane.showConfirmDialog(this,
-                        "Le surveillant est déjà affecté à un autre examen à la même période. Voulez-vous continuer ?",
-                        "Conflit de disponibilité",
-                        JOptionPane.YES_NO_OPTION);
-
-                if (confirm != JOptionPane.YES_OPTION) {
-                    return;
-                }
-            }
-
-            // Créer l'affectation
+            // Créer et sauvegarder l'affectation
             AffectationSurveillant affectation = new AffectationSurveillant(
                     examenId,
                     surveillantId
             );
-
-            // Sauvegarder l'affectation
             affectationDAO.save(affectation);
 
-            // Message de succès personnalisé
+            // Message de succès
             String surveillantNom = (String) surveillantTable.getValueAt(selectedSurveillantRow, 1);
             String surveillantPrenom = (String) surveillantTable.getValueAt(selectedSurveillantRow, 2);
 
@@ -214,7 +202,6 @@ public class AffectationSurveillantDialog extends JDialog {
                     JOptionPane.INFORMATION_MESSAGE);
 
         } catch (Exception ex) {
-            // Gestion des erreurs
             JOptionPane.showMessageDialog(this,
                     "Erreur lors de l'affectation : " + ex.getMessage(),
                     "Erreur",
@@ -222,27 +209,9 @@ public class AffectationSurveillantDialog extends JDialog {
         }
     }
 
-    private boolean verifierDisponibiliteSurveillant(int surveillantId, int examenId) {
-        // Récupérer l'examen à affecter
-        Examen examenAAffecter = examenDAO.findById(examenId).orElseThrow();
-
-        // Vérifier les conflits potentiels avec d'autres affectations
-        List<AffectationSurveillant> affectationsExistantes =
-                affectationDAO.findBySurveillantId(surveillantId);
-
-        return affectationsExistantes.stream()
-                .noneMatch(affectation -> {
-                    Examen examenExistant = examenDAO.findById(affectation.getExamenId()).orElseThrow();
-                    // Vérifier s'il y a un chevauchement de période
-                    return examenExistant.getDateExamen().equals(examenAAffecter.getDateExamen()) &&
-                            !(examenAAffecter.getHeureFin().isBefore(examenExistant.getHeureDebut()) ||
-                                    examenAAffecter.getHeureDebut().isAfter(examenExistant.getHeureFin()));
-                });
-    }
-
-    // Méthode statique pour afficher le dialogue depuis GestionSurveillanceUI
-    public static void show(JFrame parent, int departementId, TypeSurveillant userType) {
-        AffectationSurveillantDialog dialog = new AffectationSurveillantDialog(parent, departementId, userType);
+    // Méthode statique pour afficher le dialogue
+    public static void show(JFrame parent, int departementId, TypeSurveillant userType, Role role) {
+        AffectationSurveillantDialog dialog = new AffectationSurveillantDialog(parent, departementId, userType, role);
         dialog.setVisible(true);
     }
 }

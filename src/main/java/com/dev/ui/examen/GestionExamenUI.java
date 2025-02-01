@@ -4,6 +4,7 @@ import com.dev.dao.DatabaseConnection;
 import com.dev.dao.ExamenDAO;
 import com.dev.dao.LocalDAO;
 import com.dev.dao.ModuleDAO;
+import com.dev.enums.Role;
 import com.dev.enums.SessionType;
 import com.dev.models.Examen;
 import com.dev.models.Local;
@@ -48,11 +49,14 @@ public class GestionExamenUI extends JFrame {
     private final JList<Examen> examenList;
     private final DefaultListModel<Examen> listModel;
     private final int departementId;
+    private  final Role role;
 
-    public GestionExamenUI(int departementId) {
+    public GestionExamenUI(Role role,int departementId) {
         this.departementId = departementId;
         this.examenDAO = new ExamenDAO();
         this.moduleDAO = new ModuleDAO();
+
+        this.role = role;
 
         // Configuration de la fenêtre
         setTitle("Gestion des Examens - Département");
@@ -141,7 +145,8 @@ public class GestionExamenUI extends JFrame {
 
     private void loadExamens() {
         listModel.clear();
-        List<Examen> examens = examenDAO.findByDepartementId(departementId);
+
+        List<Examen> examens = examenDAO.findByDepartementId(role,departementId);
         examens.forEach(listModel::addElement);
     }
 
@@ -224,7 +229,7 @@ public class GestionExamenUI extends JFrame {
     }
     private void filterList(String searchText, int searchType) {
         listModel.clear();
-        List<Examen> examens = examenDAO.findByDepartementId(departementId);
+        List<Examen> examens = examenDAO.findByDepartementId(role,departementId);
         for (Examen examen : examens) {
             boolean match = false;
             if (searchType == 0) { // Module

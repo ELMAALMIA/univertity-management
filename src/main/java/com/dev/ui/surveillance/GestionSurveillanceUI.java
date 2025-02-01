@@ -2,6 +2,7 @@ package com.dev.ui.surveillance;
 
 import com.dev.dao.SurveillantDAO;
 import com.dev.dao.DepartementDAO;
+import com.dev.enums.Role;
 import com.dev.enums.TypeSurveillant;
 import com.dev.models.Surveillant;
 import com.dev.models.Departement;
@@ -20,12 +21,15 @@ public class GestionSurveillanceUI extends JFrame {
     private final JTable surveillantTable;
     private final int departementId;
     private final TypeSurveillant userType;
+    private final Role role;
 
-    public GestionSurveillanceUI(int departementId, TypeSurveillant userType) {
+    public GestionSurveillanceUI(int departementId, TypeSurveillant userType, Role role) {
         this.departementId = departementId;
         this.userType = userType;
         this.surveillantDAO = new SurveillantDAO();
         this.departementDAO = new DepartementDAO();
+
+        this.role = role;
 
         setTitle("Gestion des Surveillances");
         setSize(1000, 600);
@@ -364,7 +368,7 @@ public class GestionSurveillanceUI extends JFrame {
     }
     private void showAffectationDialog(ActionEvent e) {
         // Utiliser la méthode statique de la nouvelle classe de dialogue
-        AffectationSurveillantDialog.show(this, departementId, userType);
+        AffectationSurveillantDialog.show(this, departementId, userType,role );
     }
     private void showPlanning(ActionEvent e) {
 

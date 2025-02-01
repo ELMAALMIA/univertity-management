@@ -1,5 +1,6 @@
 package com.dev.dao;
 
+import com.dev.enums.Role;
 import com.dev.enums.SessionType;
 import com.dev.models.Examen;
 import java.sql.*;
@@ -14,6 +15,7 @@ public class ExamenDAO implements DAO<Examen> {
     public ExamenDAO() {
         this.connection = DatabaseConnection.getConnection();
     }
+
 
     @Override
     public Optional<Examen> findById(Integer id) {
@@ -30,7 +32,8 @@ public class ExamenDAO implements DAO<Examen> {
                         rs.getInt("module_id"),
                         rs.getDate("date_examen").toLocalDate(),
                         rs.getTime("heure_debut").toLocalTime(),
-                        rs.getTime("heure_fin").toLocalTime()
+                        rs.getTime("heure_fin").toLocalTime(),
+                        rs.getString("session_type") != null ? SessionType.valueOf(rs.getString("session_type").toUpperCase()) : null
                 ));
             }
             return Optional.empty();
@@ -52,7 +55,8 @@ public class ExamenDAO implements DAO<Examen> {
                         rs.getInt("module_id"),
                         rs.getDate("date_examen").toLocalDate(),
                         rs.getTime("heure_debut").toLocalTime(),
-                        rs.getTime("heure_fin").toLocalTime()
+                        rs.getTime("heure_fin").toLocalTime(),
+                        rs.getString("session_type") != null ? SessionType.valueOf(rs.getString("session_type").toUpperCase()) : null
                 ));
             }
         } catch (SQLException e) {
@@ -61,19 +65,21 @@ public class ExamenDAO implements DAO<Examen> {
         return examens;
     }
 
-    public List<Examen> findByDepartementId(Integer departementId) {
+    public List<Examen> findByDepartementId(Role role, Integer departementId) {
         List<Examen> examens = new ArrayList<>();
         try {
-            String sql = """
-                SELECT e.* FROM examens e 
-                JOIN modules m ON e.module_id = m.id 
-                JOIN filieres f ON m.filiere_id = f.id 
-                WHERE f.departement_id = ?
-                """;
-            PreparedStatement stmt = connection.prepareStatement(sql);
-            stmt.setInt(1, departementId);
-            ResultSet rs = stmt.executeQuery();
-
+            if (role == Role.ADMIN) {
+                return findAll(); // L'admin peut voir tous les examens
+            } else if (role == Role.CHEF_DEPT && departementId != null) {
+                String sql = """
+                    SELECT e.* FROM examens e 
+                    JOIN modules m ON e.module_id = m.id 
+                    JOIN filieres f ON m.filiere_id = f.id 
+                    WHERE f.departement_id = ?
+                    """;
+                PreparedStatement stmt = connection.prepareStatement(sql);
+                stmt.setInt(1, departementId);
+                ResultSet rs = stmt.executeQuery();
 
                 while (rs.next()) {
                     examens.add(new Examen(
@@ -82,15 +88,10 @@ public class ExamenDAO implements DAO<Examen> {
                             rs.getDate("date_examen").toLocalDate(),
                             rs.getTime("heure_debut").toLocalTime(),
                             rs.getTime("heure_fin").toLocalTime(),
-                            SessionType.valueOf(rs.getString("session_type").toUpperCase()) // Convertir la chaîne en enum
+                            rs.getString("session_type") != null ? SessionType.valueOf(rs.getString("session_type").toUpperCase()) : null
                     ));
-
-
                 }
-            System.out.println("eee"+examens);
-
-
-
+            }
         } catch (SQLException e) {
             throw new RuntimeException("Erreur lors du chargement des examens du département", e);
         }

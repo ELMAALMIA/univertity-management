@@ -1,6 +1,7 @@
 package com.dev.ui.menus;
 
 import com.dev.dao.*;
+import com.dev.enums.Role;
 import com.dev.models.*;
 import com.dev.models.Module;
 
@@ -32,13 +33,15 @@ public class StatistiquesUI extends JPanel {
     private final DepartementDAO departementDAO;
     private  final String depName;
 
-    public StatistiquesUI(int departementId) {
+    private  final Role role;
+
+    public StatistiquesUI(Role role,int departementId) {
         this.departementId = departementId;
         this.examenDAO = new ExamenDAO();
         this.surveillantDAO = new SurveillantDAO();
         this.localDAO = new LocalDAO();
         this.moduleDAO = new ModuleDAO();
-
+this.role = role;
 
         this.departementDAO = new DepartementDAO();
         Optional<Departement> departement = departementDAO.findById(departementId);
@@ -87,7 +90,7 @@ public class StatistiquesUI extends JPanel {
         JPanel panel = new JPanel(new BorderLayout());
 
         // Statistiques des examens
-        List<Examen> examens = examenDAO.findByDepartementId(departementId);
+        List<Examen> examens = examenDAO.findByDepartementId(role,departementId);
 
         String[] colonnes = {"Indicateur", "Valeur"};
         Object[][] donnees = {
@@ -192,7 +195,7 @@ public class StatistiquesUI extends JPanel {
 
                 // Écrire les statistiques des examens
                 out.println("Examens,Nombre total d'examens," +
-                        examenDAO.findByDepartementId(departementId).size());
+                        examenDAO.findByDepartementId(role,departementId).size());
 
                 // Écrire les statistiques des surveillants
                 List<Surveillant> surveillants = surveillantDAO.findAll().stream()
@@ -242,7 +245,7 @@ public class StatistiquesUI extends JPanel {
 
                 // Statistiques des examens
                 ajouterStatistiquesPDF(document, "Statistiques des Examens",
-                        examenDAO.findByDepartementId(departementId),
+                        examenDAO.findByDepartementId(role,departementId),
                         this::preparerStatistiquesExamen);
 
                 // Statistiques des surveillants

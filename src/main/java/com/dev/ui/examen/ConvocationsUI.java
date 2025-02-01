@@ -4,6 +4,7 @@ import com.dev.dao.ExamenDAO;
 import com.dev.dao.LocalDAO;
 import com.dev.dao.ModuleDAO;
 import com.dev.dao.DatabaseConnection;
+import com.dev.enums.Role;
 import com.dev.models.Examen;
 import com.dev.models.Local;
 import com.dev.models.Module;
@@ -34,12 +35,13 @@ public class ConvocationsUI extends JFrame {
     private DefaultTableModel tableModel;
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
-
-    public ConvocationsUI(int departementId) {
+private  final Role role;
+    public ConvocationsUI(Role role,int departementId) {
         this.departementId = departementId;
         this.examenDAO = new ExamenDAO();
         this.moduleDAO = new ModuleDAO();
         this.localDAO = new LocalDAO();
+        this.role=role;
         initializeUI();
         loadExamensData();
     }
@@ -79,7 +81,7 @@ public class ConvocationsUI extends JFrame {
 
     private void loadExamensData() {
         tableModel.setRowCount(0);
-        List<Examen> examens = examenDAO.findByDepartementId(departementId);
+        List<Examen> examens = examenDAO.findByDepartementId(role,departementId);
 
         for (Examen examen : examens) {
             Optional<Module> module = moduleDAO.findById(examen.getModuleId());
@@ -322,9 +324,5 @@ public class ConvocationsUI extends JFrame {
         table.addCell(valueCell);
     }
 
-    public static void show(int departementId) {
-        SwingUtilities.invokeLater(() -> {
-            new ConvocationsUI(departementId).setVisible(true);
-        });
-    }
+
 }
